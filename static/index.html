@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriScan AI - UAV Multispectral Crop Monitoring System</title>
+    <!-- Modern Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons (CDN) for UI styling -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js for gorgeous analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="glass-container">
+        <!-- Top Navigation Telemetry Bar -->
+        <header class="app-header">
+            <div class="logo-area">
+                <div class="pulse-emerald"></div>
+                <h1>AgriScan <span>AI</span></h1>
+            </div>
+            <div class="telemetry-bar">
+                <div class="telemetry-item" id="gps-lock">
+                    <i data-lucide="map-pin"></i>
+                    <span>GPS: LOCK 45.4215, -75.6972</span>
+                </div>
+                <div class="telemetry-item" id="uav-battery">
+                    <i data-lucide="battery-charging"></i>
+                    <span>UAV BAT: 87%</span>
+                </div>
+                <div class="telemetry-item" id="signal-strength">
+                    <i data-lucide="signal"></i>
+                    <span>SIGNAL: 4.8 GHz (EXCELLENT)</span>
+                </div>
+                <div class="telemetry-item" id="bands-status">
+                    <i data-lucide="layers"></i>
+                    <span>BANDS: 5/5 ACTIVE</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-layout">
+            <!-- Sidebar Navigation Tabs -->
+            <nav class="sidebar">
+                <div class="nav-links">
+                    <button class="nav-tab active" data-tab="uav-flight-deck">
+                        <i data-lucide="navigation"></i>
+                        <span>UAV Flight Deck</span>
+                    </button>
+                    <button class="nav-tab" data-tab="band-alignment">
+                        <i data-lucide="git-merge"></i>
+                        <span>Band Alignment</span>
+                    </button>
+                    <button class="nav-tab" data-tab="spectral-engine">
+                        <i data-lucide="sliders"></i>
+                        <span>Spectral Engine</span>
+                    </button>
+                    <button class="nav-tab" data-tab="diagnostic-ai">
+                        <i data-lucide="cpu"></i>
+                        <span>Diagnostic AI</span>
+                    </button>
+                    <button class="nav-tab" data-tab="control-room">
+                        <i data-lucide="bar-chart-2"></i>
+                        <span>AI Control Room</span>
+                    </button>
+                </div>
+                <div class="sidebar-footer">
+                    <div class="drone-model">
+                        <div class="glow-dot"></div>
+                        <div>
+                            <h4>AgriScan UAV-X5</h4>
+                            <p>Firmware: v2.4.1-Stable</p>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Interactive Content Panels -->
+            <main class="content-panel">
+                
+                <!-- TAB 1: UAV FLIGHT DECK (GIMBAL STABILIZATION) -->
+                <section id="uav-flight-deck" class="tab-content active">
+                    <div class="section-header">
+                        <h2>Anti-Gravity Gimbal Stabilization</h2>
+                        <p>Eliminate flight vibrations up to 99% in real-time using software-level SIFT registration and Kalman Filtering.</p>
+                    </div>
+
+                    <div class="two-column-grid">
+                        <div class="feed-card shadow-glow">
+                            <div class="feed-header">
+                                <span class="badge badge-shaky">RAW TELEMETRY</span>
+                                <h3>Unstabilized Flight Stream</h3>
+                            </div>
+                            <div class="canvas-container shaky-border">
+                                <canvas id="shaky-canvas" width="300" height="300"></canvas>
+                                <div class="overlay-overlay">HIGH FLIGHT JITTER</div>
+                            </div>
+                        </div>
+
+                        <div class="feed-card shadow-glow">
+                            <div class="feed-header">
+                                <span class="badge badge-stabilized">ANTI-GRAVITY LOCKED</span>
+                                <h3>Kalman-Smoothed Stream</h3>
+                            </div>
+                            <div class="canvas-container stabilized-border">
+                                <canvas id="smooth-canvas" width="300" height="300"></canvas>
+                                <div class="overlay-overlay glow-text">99% JITTER REMOVED</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card full-width-card mt-20">
+                        <div class="card-header">
+                            <i data-lucide="activity" class="emerald-text"></i>
+                            <h3>Real-Time Trajectory Analysis (Yaw & Drift Smoothness)</h3>
+                            <button class="btn btn-emerald btn-sm" id="btn-refresh-telemetry">Reset Telemetry</button>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="telemetry-chart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 2: BAND ALIGNMENT -->
+                <section id="band-alignment" class="tab-content">
+                    <div class="section-header">
+                        <h2>SIFT-Based Multispectral Band Registration</h2>
+                        <p>Perfect sub-pixel alignment of Blue, Green, Red, Red-Edge, and NIR bands to compensate for UAV camera lens offset.</p>
+                    </div>
+
+                    <div class="registration-console">
+                        <div class="card input-card">
+                            <h3>Diagnostic Configuration</h3>
+                            <div class="form-group">
+                                <label for="alignment-crop">Crop Species:</label>
+                                <select id="alignment-crop">
+                                    <option value="Avocado">Avocado Orchard</option>
+                                    <option value="Olive">Olive Grove</option>
+                                    <option value="Wheat">Wheat Field</option>
+                                    <option value="Vineyard">Vineyard (Grapes)</option>
+                                    <option value="Maize">Maize (Corn)</option>
+                                    <option value="Citrus">Citrus (Orange)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="alignment-severity">Infection Severity Level:</label>
+                                <select id="alignment-severity">
+                                    <option value="0">Severity 0: Healthy</option>
+                                    <option value="1">Severity 1: Early-Stage Stress</option>
+                                    <option value="2">Severity 2: Mild</option>
+                                    <option value="3">Severity 3: Severe</option>
+                                    <option value="4">Severity 4: Terminal</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-emerald btn-block" id="btn-run-alignment">
+                                <i data-lucide="refresh-cw"></i> Run SIFT Band Alignment
+                            </button>
+                            
+                            <div class="metrics-list mt-20">
+                                <div class="metric-box">
+                                    <h4>Raw Jitter Offset</h4>
+                                    <p id="align-jitter-raw">-- px</p>
+                                </div>
+                                <div class="metric-box">
+                                    <h4>Post-Alignment Residual</h4>
+                                    <p id="align-jitter-smooth" class="emerald-text">-- px</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card alignment-visualizer">
+                            <h3>Keypoint Feature Mapping (Target Band vs. NIR Reference)</h3>
+                            <div class="alignment-split-viewer">
+                                <div class="view-box">
+                                    <h4>Raw Unaligned Overlay</h4>
+                                    <img id="img-unaligned-composite" src="" class="img-placeholder" alt="Unaligned Stack">
+                                </div>
+                                <div class="view-box">
+                                    <h4>SIFT-Aligned Composite</h4>
+                                    <img id="img-aligned-composite" src="" class="img-placeholder" alt="Aligned Stack">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card full-width-card mt-20">
+                        <h3>Multispectral Bands Spectral Grid</h3>
+                        <div class="bands-grid">
+                            <div class="band-box">
+                                <h4>Band 1: Blue</h4>
+                                <img id="band-img-0" src="" class="band-img" alt="Blue Band">
+                            </div>
+                            <div class="band-box">
+                                <h4>Band 2: Green</h4>
+                                <img id="band-img-1" src="" class="band-img" alt="Green Band">
+                            </div>
+                            <div class="band-box">
+                                <h4>Band 3: Red</h4>
+                                <img id="band-img-2" src="" class="band-img" alt="Red Band">
+                            </div>
+                            <div class="band-box">
+                                <h4>Band 4: Red-Edge</h4>
+                                <img id="band-img-3" src="" class="band-img" alt="Red-Edge Band">
+                            </div>
+                            <div class="band-box">
+                                <h4>Band 5: NIR</h4>
+                                <img id="band-img-4" src="" class="band-img" alt="NIR Band">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 3: SPECTRAL ENGINE -->
+                <section id="spectral-engine" class="tab-content">
+                    <div class="section-header">
+                        <h2>High-Resolution Spectral Analysis Engine</h2>
+                        <p>Calculate vegetation indices (NDVI/NDRE) and map crop stress clusters using NIR & Red-Edge absorption values.</p>
+                    </div>
+
+                    <div class="spectral-console">
+                        <div class="card config-card">
+                            <h3>Index Controller</h3>
+                            <div class="form-group">
+                                <label for="spectral-crop">Crop Species:</label>
+                                <select id="spectral-crop">
+                                    <option value="Avocado">Avocado Orchard</option>
+                                    <option value="Olive">Olive Grove</option>
+                                    <option value="Wheat">Wheat Field</option>
+                                    <option value="Vineyard">Vineyard (Grapes)</option>
+                                    <option value="Maize">Maize (Corn)</option>
+                                    <option value="Citrus">Citrus (Orange)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="spectral-severity">Severity Level:</label>
+                                <select id="spectral-severity">
+                                    <option value="0">Severity 0: Healthy</option>
+                                    <option value="1" selected>Severity 1: Early-Stage Stress</option>
+                                    <option value="2">Severity 2: Mild</option>
+                                    <option value="3">Severity 3: Severe</option>
+                                    <option value="4">Severity 4: Terminal</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Stress Threshold Bounds:</label>
+                                <div class="slider-group">
+                                    <span>Min: <span id="val-min-stress">0.18</span></span>
+                                    <input type="range" id="slider-min-stress" min="0.05" max="0.40" step="0.01" value="0.18">
+                                </div>
+                                <div class="slider-group mt-10">
+                                    <span>Max: <span id="val-max-stress">0.48</span></span>
+                                    <input type="range" id="slider-max-stress" min="0.41" max="0.80" step="0.01" value="0.48">
+                                </div>
+                            </div>
+                            <button class="btn btn-emerald btn-block" id="btn-run-spectral">Generate Indexes</button>
+
+                            <div class="metrics-list mt-20">
+                                <div class="metric-box">
+                                    <h4>Mean NDVI</h4>
+                                    <p id="mean-ndvi-text">0.00</p>
+                                </div>
+                                <div class="metric-box">
+                                    <h4>Mean NDRE</h4>
+                                    <p id="mean-ndre-text" class="teal-text">0.00</p>
+                                </div>
+                                <div class="metric-box">
+                                    <h4>Stressed Area</h4>
+                                    <p id="stressed-pct-text" class="orange-text">0.0%</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card maps-card">
+                            <h3>High-Res Map Deliverables</h3>
+                            <div class="maps-grid">
+                                <div class="map-view">
+                                    <h4>Standard RGB Color</h4>
+                                    <img id="img-rgb" src="" class="map-img" alt="RGB">
+                                </div>
+                                <div class="map-view">
+                                    <h4>Color Infrared (CIR)</h4>
+                                    <img id="img-cir" src="" class="map-img" alt="CIR">
+                                </div>
+                                <div class="map-view">
+                                    <h4>NDVI Heatmap</h4>
+                                    <img id="img-ndvi" src="" class="map-img" alt="NDVI">
+                                </div>
+                                <div class="map-view">
+                                    <h4>NDRE Heatmap (Early Stress)</h4>
+                                    <img id="img-ndre" src="" class="map-img" alt="NDRE">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card full-width-card mt-20">
+                        <div class="card-header">
+                            <i data-lucide="alert-triangle" class="orange-text"></i>
+                            <h3>Isolated Stressed Vegetation Hotspots</h3>
+                        </div>
+                        <div class="stress-overlay-container">
+                            <div class="overlay-column">
+                                <img id="img-stress-overlay" src="" class="stress-overlay-img" alt="Stress Overlay">
+                            </div>
+                            <div class="overlay-info">
+                                <h4>Detection Note:</h4>
+                                <p>Stressed zones are mapped in **neon orange**. By analyzing the transitional **Red-Edge** spectral response, we identify internal plant cellular collapse *before* visual leaves yellowing takes place.</p>
+                                <div class="alert-info-box">
+                                    <strong>Red-Edge Advantage:</strong> At Severity 1 (Early-Stage Stress), standard NDVI displays a highly healthy index, whereas NDRE shows a significant drop-off, capturing disease outbreak 7-10 days earlier.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 4: DIAGNOSTIC AI -->
+                <section id="diagnostic-ai" class="tab-content">
+                    <div class="section-header">
+                        <h2>PyTorch CNN-Xception Diagnostic Classifier</h2>
+                        <p>Run instant diagnostic inferences on aligned multispectral patches, categorizing crop health on a scale of 0 to 4.</p>
+                    </div>
+
+                    <div class="diagnostic-console">
+                        <div class="card config-card">
+                            <h3>Tissue Scan Controller</h3>
+                            <div class="form-group">
+                                <label for="classify-crop">Crop Species:</label>
+                                <select id="classify-crop">
+                                    <option value="Avocado">Avocado Orchard</option>
+                                    <option value="Olive">Olive Grove</option>
+                                    <option value="Wheat">Wheat Field</option>
+                                    <option value="Vineyard">Vineyard (Grapes)</option>
+                                    <option value="Maize">Maize (Corn)</option>
+                                    <option value="Citrus">Citrus (Orange)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="classify-severity">Target Infection State:</label>
+                                <select id="classify-severity">
+                                    <option value="0">Healthy</option>
+                                    <option value="1">Early-Stage Stress</option>
+                                    <option value="2">Mild</option>
+                                    <option value="3">Severe</option>
+                                    <option value="4">Terminal</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-emerald btn-block" id="btn-run-classify">Scan Leaf Tissue</button>
+
+                            <div class="mt-20 diagnosis-result-card" id="diagnosis-result-area" style="display: none;">
+                                <h4>AI DIAGNOSIS:</h4>
+                                <div class="diagnosis-label" id="diag-label">HEALTHY</div>
+                                <p class="diagnosis-desc" id="diag-desc">No visible cellular decay.</p>
+                            </div>
+                        </div>
+
+                        <div class="card results-card">
+                            <h3>Xception Output Classification Probabilities</h3>
+                            <div class="bars-container">
+                                <div class="bar-row">
+                                    <span class="bar-label">Severity 0: Healthy</span>
+                                    <div class="bar-track">
+                                        <div class="bar-fill emerald-fill" id="prob-0" style="width: 0%;"></div>
+                                    </div>
+                                    <span class="bar-pct" id="prob-0-text">0.0%</span>
+                                </div>
+                                <div class="bar-row">
+                                    <span class="bar-label">Severity 1: Early-Stage</span>
+                                    <div class="bar-track">
+                                        <div class="bar-fill teal-fill" id="prob-1" style="width: 0%;"></div>
+                                    </div>
+                                    <span class="bar-pct" id="prob-1-text">0.0%</span>
+                                </div>
+                                <div class="bar-row">
+                                    <span class="bar-label">Severity 2: Mild Stress</span>
+                                    <div class="bar-track">
+                                        <div class="bar-fill yellow-fill" id="prob-2" style="width: 0%;"></div>
+                                    </div>
+                                    <span class="bar-pct" id="prob-2-text">0.0%</span>
+                                </div>
+                                <div class="bar-row">
+                                    <span class="bar-label">Severity 3: Severe</span>
+                                    <div class="bar-track">
+                                        <div class="bar-fill orange-fill" id="prob-3" style="width: 0%;"></div>
+                                    </div>
+                                    <span class="bar-pct" id="prob-3-text">0.0%</span>
+                                </div>
+                                <div class="bar-row">
+                                    <span class="bar-label">Severity 4: Terminal</span>
+                                    <div class="bar-track">
+                                        <div class="bar-fill red-fill" id="prob-4" style="width: 0%;"></div>
+                                    </div>
+                                    <span class="bar-pct" id="prob-4-text">0.0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card full-width-card mt-20">
+                        <div class="card-header">
+                            <i data-lucide="layers" class="teal-text"></i>
+                            <h3>Integrated Gradients Band Sensitivity (Channel Attribution)</h3>
+                        </div>
+                        <p class="description-text">This chart indicates which spectral bands the custom Xception backbone focused on. Saliency values confirm that **NIR and Red-Edge** contribute over **65%** of early stress detection weighting.</p>
+                        <div class="attribution-chart-container">
+                            <canvas id="saliency-chart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 5: CONTROL ROOM -->
+                <section id="control-room" class="tab-content">
+                    <div class="section-header">
+                        <h2>CNN-Xception Deep Learning Control Room</h2>
+                        <p>Track learning metrics, convergence thresholds, and epoch steps validated across 40,000+ crop samples.</p>
+                    </div>
+
+                    <div class="control-room-layout">
+                        <div class="card control-actions-card">
+                            <h3>Hyperparameter Diagnostics</h3>
+                            <div class="static-hyperparameters">
+                                <div class="param-row">
+                                    <span>Model Backbone:</span>
+                                    <strong>AgriScanXception (5-Channel)</strong>
+                                </div>
+                                <div class="param-row">
+                                    <span>Dataset Capacity:</span>
+                                    <strong>42,560 Images (Nature 2025 Sim)</strong>
+                                </div>
+                                <div class="param-row">
+                                    <span>Learning Rate:</span>
+                                    <strong>3e-4 (AdamW Optimizer)</strong>
+                                </div>
+                                <div class="param-row">
+                                    <span>Batch Size:</span>
+                                    <strong>64 (Parallel Channels)</strong>
+                                </div>
+                                <div class="param-row">
+                                    <span>Dropout Rate:</span>
+                                    <strong>0.42 (Regularized)</strong>
+                                </div>
+                            </div>
+                            <button class="btn btn-emerald btn-block" id="btn-run-training">
+                                <i data-lucide="play"></i> Simulate Training Epochs
+                            </button>
+                            
+                            <div class="training-metrics-box mt-20" id="training-stats" style="display: none;">
+                                <div class="param-row">
+                                    <span>Converged Epochs:</span>
+                                    <strong class="emerald-text">20 / 20</strong>
+                                </div>
+                                <div class="param-row">
+                                    <span>Final Validation Loss:</span>
+                                    <strong class="emerald-text">0.0384</strong>
+                                </div>
+                                <div class="param-row">
+                                    <span>Final Accuracy:</span>
+                                    <strong id="final-accuracy-val" class="teal-text">98.2%</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card charts-card">
+                            <h3>Model Performance Convergence Curves</h3>
+                            <div class="training-curves-grid">
+                                <div class="curve-box">
+                                    <h4>Accuracy Convergence (>95% Target)</h4>
+                                    <canvas id="accuracy-curve-chart"></canvas>
+                                </div>
+                                <div class="curve-box">
+                                    <h4>Cross-Entropy Loss Curve</h4>
+                                    <canvas id="loss-curve-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Script wiring -->
+    <script src="app.js"></script>
+    <script>
+        // Init Lucide Icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
